@@ -40,6 +40,7 @@ async def on_ready():
     print(f"Logged in as {bot.user}")
     for channel_id in [CHANNEL_ID_1, CHANNEL_ID_2, CHANNEL_ID_3]:  # replace with actual IDs
         channel = bot.get_channel(channel_id)
+        print("channel", channel)
         async for message in channel.history(limit=1000):  # Adjust limit as needed
             embedding = embed_text(message.content)
             vectorstore.add(
