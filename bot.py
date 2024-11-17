@@ -23,26 +23,36 @@ vectorstore = client.create_collection(name="discord_embeddings")
 tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/paraphrase-MiniLM-L6-v2")
 model = AutoModel.from_pretrained("sentence-transformers/paraphrase-MiniLM-L6-v2")
 
-CHANNEL_ID_1 = "1307499332366503950"  # Replace with the actual channel ID
-CHANNEL_ID_2 = "1307499419570274404"  # Replace with the actual channel ID
-CHANNEL_ID_3 = "1307499443075022940"  # Replace with the actual channel ID
+CHANNEL_ID_1 = 1307499332366503950  # Replace with the actual channel ID
+CHANNEL_ID_2 = 1307499419570274404  # Replace with the actual channel ID
+CHANNEL_ID_3 = 1307499443075022940  # Replace with the actual channel ID
 
 # Function to embed a message
 def embed_text(text):
+    print("text", text)
     inputs = tokenizer(text, return_tensors="pt")
+    print("inputs", inputs)
     with torch.no_grad():
         embeddings = model(**inputs).last_hidden_state.mean(dim=1)
+        print("embeddings", embeddings)
     return embeddings.squeeze().cpu().numpy()  # Convert to numpy array for Chroma compatibility
 
 # Ingest historical messages
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
+
     for channel_id in [CHANNEL_ID_1, CHANNEL_ID_2, CHANNEL_ID_3]:  # replace with actual IDs
-        channel = bot.get_channel(channel_id)
+        channel = await bot.fetch_channel(channel_id)
         print("channel", channel)
-        async for message in channel.history(limit=1000):  # Adjust limit as needed
+
+        history = channel.history(limit=None)  # Fetch all messages
+        print("history", history)
+
+        async for message in history:  # Adjust limit as needed
+            print("message", message.content)
             embedding = embed_text(message.content)
+            print("embedding", embedding)
             vectorstore.add(
                 documents=[message.content],
                 embeddings=[embedding],
