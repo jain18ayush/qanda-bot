@@ -23,6 +23,10 @@ vectorstore = client.create_collection(name="discord_embeddings")
 tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/paraphrase-MiniLM-L6-v2")
 model = AutoModel.from_pretrained("sentence-transformers/paraphrase-MiniLM-L6-v2")
 
+CHANNEL_ID_1 = "1307499332366503950"  # Replace with the actual channel ID
+CHANNEL_ID_2 = "1307499419570274404"  # Replace with the actual channel ID
+CHANNEL_ID_3 = "1307499443075022940"  # Replace with the actual channel ID
+
 # Function to embed a message
 def embed_text(text):
     inputs = tokenizer(text, return_tensors="pt")
@@ -34,7 +38,7 @@ def embed_text(text):
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
-    for channel_id in ["CHANNEL_ID_1", "CHANNEL_ID_2", "CHANNEL_ID_3"]:  # replace with actual IDs
+    for channel_id in [CHANNEL_ID_1, CHANNEL_ID_2, CHANNEL_ID_3]:  # replace with actual IDs
         channel = bot.get_channel(channel_id)
         async for message in channel.history(limit=1000):  # Adjust limit as needed
             embedding = embed_text(message.content)
@@ -48,7 +52,7 @@ async def on_ready():
 # Update vectorstore when a new message is posted
 @bot.event
 async def on_message(message):
-    if message.channel.id in ["CHANNEL_ID_1", "CHANNEL_ID_2", "CHANNEL_ID_3"]:
+    if message.channel.id in [CHANNEL_ID_1, CHANNEL_ID_2, CHANNEL_ID_3]:
         embedding = embed_text(message.content)
         vectorstore.add(
             documents=[message.content],
